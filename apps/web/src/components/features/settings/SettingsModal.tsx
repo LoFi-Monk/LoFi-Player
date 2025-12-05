@@ -4,7 +4,6 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog"
 import {
     Tabs,
@@ -12,7 +11,9 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs"
-import { Settings, Keyboard, Terminal, Server } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Settings, Keyboard, Terminal, Server, Moon, Sun, Laptop } from "lucide-react"
+import { useTheme } from "@/components/theme-provider"
 
 interface SettingsModalProps {
     open: boolean
@@ -20,6 +21,8 @@ interface SettingsModalProps {
 }
 
 export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
+    const { setTheme, theme } = useTheme()
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden gap-0">
@@ -68,10 +71,43 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                     {/* Content Area */}
                     <div className="flex-1 overflow-auto p-6 bg-background">
                         <TabsContent value="general" className="mt-0 h-full">
-                            <div className="space-y-4">
-                                <h3 className="text-lg font-medium">General Settings</h3>
-                                <p className="text-sm text-muted-foreground">Application preferences will go here.</p>
-                                {/* TODO: Add General Settings form */}
+                            <div className="space-y-6">
+                                <div>
+                                    <h3 className="text-lg font-medium">Appearance</h3>
+                                    <p className="text-sm text-muted-foreground mb-4">
+                                        Customize the look and feel of the application.
+                                    </p>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant={theme === "light" ? "default" : "outline"}
+                                            onClick={() => setTheme("light")}
+                                            className="w-32 justify-start gap-2"
+                                        >
+                                            <Sun className="h-4 w-4" />
+                                            Light
+                                        </Button>
+                                        <Button
+                                            variant={theme === "dark" ? "default" : "outline"}
+                                            onClick={() => setTheme("dark")}
+                                            className="w-32 justify-start gap-2"
+                                        >
+                                            <Moon className="h-4 w-4" />
+                                            Dark
+                                        </Button>
+                                        <Button
+                                            variant={theme === "system" ? "default" : "outline"}
+                                            onClick={() => setTheme("system")}
+                                            className="w-32 justify-start gap-2"
+                                        >
+                                            <Laptop className="h-4 w-4" />
+                                            System
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="border-t pt-4">
+                                    <h3 className="text-lg font-medium">Coming Soon</h3>
+                                    <p className="text-sm text-muted-foreground">More general settings will appear here.</p>
+                                </div>
                             </div>
                         </TabsContent>
 
