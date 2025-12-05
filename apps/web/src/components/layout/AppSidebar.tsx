@@ -8,6 +8,7 @@ import {
     User,
     Settings,
 } from "lucide-react"
+import { Focusable } from "@/components/features/input/Focusable"
 
 import {
     Sidebar,
@@ -87,11 +88,10 @@ export function AppSidebar() {
                     <SidebarGroupLabel>Menu</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            import {Focusable} from "@/components/features/input/Focusable"
-                            // ...
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <Focusable
+                                        autoFocus={item.title === 'Home'}
                                         onEnter={() => {
                                             if (item.title === "Settings") {
                                                 setSettingsOpen(true)

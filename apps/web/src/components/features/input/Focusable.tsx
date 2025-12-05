@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFocusable, FocusableComponentLayout } from '@noriginmedia/react-spatial-navigation';
 import { cn } from '@/lib/utils';
 import { useInputMode } from './input-provider';
@@ -10,6 +10,7 @@ interface FocusableProps {
     className?: string; // Base class
     focusedClassName?: string; // Class to add when focused (and in navigation mode)
     focusKey?: string;
+    autoFocus?: boolean;
 }
 
 export function Focusable({
@@ -18,16 +19,25 @@ export function Focusable({
     onEnter,
     className,
     focusedClassName = 'ring-2 ring-primary ring-offset-2',
-    focusKey
+    focusKey,
+    autoFocus
 }: FocusableProps) {
-    const { ref, focused } = useFocusable({
+    const { ref, focused, focusSelf } = useFocusable({
         onFocus,
         onEnter,
         focusKey,
-        trackChildren: true
+        trackChildren: true,
+        autoFocus
     });
 
     const { mode } = useInputMode();
+
+    // Handle manual autoFocus if property is set
+    useEffect(() => {
+        if (autoFocus) {
+            focusSelf();
+        }
+    }, [autoFocus, focusSelf]);
 
     // Only show visual focus indication if we are in 'navigation' mode (Keyboard/Gamepad)
     // AND the item is actually focused.
