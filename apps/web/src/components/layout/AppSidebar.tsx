@@ -1,3 +1,4 @@
+import * as React from "react"
 import {
     Home,
     Tv,
@@ -19,6 +20,7 @@ import {
     SidebarMenuItem,
     SidebarHeader,
 } from "@/components/ui/sidebar"
+import { SettingsModal } from "@/components/features/settings/SettingsModal"
 
 /**
  * AppSidebar
@@ -69,6 +71,8 @@ const items = [
 ]
 
 export function AppSidebar() {
+    const [settingsOpen, setSettingsOpen] = React.useState(false)
+
     return (
         <Sidebar
             collapsible="icon" // Default to icon-only collapsed state to maximize video area
@@ -85,7 +89,15 @@ export function AppSidebar() {
                         <SidebarMenu>
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild>
+                                    <SidebarMenuButton
+                                        asChild
+                                        onClick={(e) => {
+                                            if (item.title === "Settings") {
+                                                e.preventDefault()
+                                                setSettingsOpen(true)
+                                            }
+                                        }}
+                                    >
                                         <a href={item.url}>
                                             <item.icon />
                                             <span>{item.title}</span>
@@ -97,6 +109,9 @@ export function AppSidebar() {
                     </SidebarGroupContent>
                 </SidebarGroup>
             </SidebarContent>
+
+            {/* Settings Modal - Controlled by state */}
+            <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
         </Sidebar>
     )
 }
