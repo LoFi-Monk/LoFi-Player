@@ -1,0 +1,27 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Production
+dist
+build
+
+# Env
+.env
+.env.local
+
+# Database / Backend
+pb_data/
+*.db
+*.sqlite
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode
+.idea
+
+# Turbo
+.turbo
