@@ -34,37 +34,25 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 </DialogHeader>
 
                 <Tabs defaultValue="general" orientation="vertical" className="flex-1 flex overflow-hidden">
+                    import {Focusable} from "@/components/features/input/Focusable"
+                    // ...
                     {/* Sidebar / Tabs List */}
                     <div className="w-64 border-r bg-muted/30 p-4">
                         <TabsList className="flex flex-col h-auto w-full bg-transparent gap-1 p-0">
-                            <TabsTrigger
-                                value="general"
-                                className="w-full justify-start gap-2 px-3 data-[state=active]:bg-background data-[state=active]:shadow-sm"
-                            >
-                                <Settings className="h-4 w-4" />
-                                General
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="keybindings"
-                                className="w-full justify-start gap-2 px-3 data-[state=active]:bg-background data-[state=active]:shadow-sm"
-                            >
-                                <Keyboard className="h-4 w-4" />
-                                Keybindings
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="developer"
-                                className="w-full justify-start gap-2 px-3 data-[state=active]:bg-background data-[state=active]:shadow-sm"
-                            >
-                                <Terminal className="h-4 w-4" />
-                                Developer
-                            </TabsTrigger>
-                            <TabsTrigger
-                                value="servers"
-                                className="w-full justify-start gap-2 px-3 data-[state=active]:bg-background data-[state=active]:shadow-sm"
-                            >
-                                <Server className="h-4 w-4" />
-                                Servers Status
-                            </TabsTrigger>
+                            {["general", "keybindings", "developer", "servers"].map((tab) => (
+                                <Focusable key={tab} className="rounded-sm" focusedClassName="ring-2 ring-primary z-10">
+                                    <TabsTrigger
+                                        value={tab}
+                                        className="w-full justify-start gap-2 px-3 data-[state=active]:bg-background data-[state=active]:shadow-sm capitalize"
+                                    >
+                                        {tab === 'general' && <Settings className="h-4 w-4" />}
+                                        {tab === 'keybindings' && <Keyboard className="h-4 w-4" />}
+                                        {tab === 'developer' && <Terminal className="h-4 w-4" />}
+                                        {tab === 'servers' && <Server className="h-4 w-4" />}
+                                        {tab}
+                                    </TabsTrigger>
+                                </Focusable>
+                            ))}
                         </TabsList>
                     </div>
 
@@ -78,30 +66,26 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                                         Customize the look and feel of the application.
                                     </p>
                                     <div className="flex items-center gap-2">
-                                        <Button
-                                            variant={theme === "light" ? "default" : "outline"}
-                                            onClick={() => setTheme("light")}
-                                            className="w-32 justify-start gap-2"
-                                        >
-                                            <Sun className="h-4 w-4" />
-                                            Light
-                                        </Button>
-                                        <Button
-                                            variant={theme === "dark" ? "default" : "outline"}
-                                            onClick={() => setTheme("dark")}
-                                            className="w-32 justify-start gap-2"
-                                        >
-                                            <Moon className="h-4 w-4" />
-                                            Dark
-                                        </Button>
-                                        <Button
-                                            variant={theme === "system" ? "default" : "outline"}
-                                            onClick={() => setTheme("system")}
-                                            className="w-32 justify-start gap-2"
-                                        >
-                                            <Laptop className="h-4 w-4" />
-                                            System
-                                        </Button>
+                                        {[
+                                            { mode: 'light', icon: Sun, label: 'Light' },
+                                            { mode: 'dark', icon: Moon, label: 'Dark' },
+                                            { mode: 'system', icon: Laptop, label: 'System' }
+                                        ].map(({ mode, icon: Icon, label }) => (
+                                            <Focusable
+                                                key={mode}
+                                                className="rounded-md"
+                                                onEnter={() => setTheme(mode as any)}
+                                            >
+                                                <Button
+                                                    variant={theme === mode ? "default" : "outline"}
+                                                    onClick={() => setTheme(mode as any)}
+                                                    className="w-32 justify-start gap-2"
+                                                >
+                                                    <Icon className="h-4 w-4" />
+                                                    {label}
+                                                </Button>
+                                            </Focusable>
+                                        ))}
                                     </div>
                                 </div>
                                 <div className="border-t pt-4">

@@ -87,22 +87,37 @@ export function AppSidebar() {
                     <SidebarGroupLabel>Menu</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
+                            import {Focusable} from "@/components/features/input/Focusable"
+                            // ...
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton
-                                        asChild
-                                        onClick={(e) => {
+                                    <Focusable
+                                        onEnter={() => {
                                             if (item.title === "Settings") {
-                                                e.preventDefault()
                                                 setSettingsOpen(true)
+                                            } else {
+                                                window.location.href = item.url
                                             }
                                         }}
+                                        className="rounded-md outline-none"
+                                        focusedClassName="ring-2 ring-primary bg-sidebar-accent text-sidebar-accent-foreground z-10"
                                     >
-                                        <a href={item.url}>
-                                            <item.icon />
-                                            <span>{item.title}</span>
-                                        </a>
-                                    </SidebarMenuButton>
+                                        <SidebarMenuButton
+                                            asChild
+                                            onClick={(e) => {
+                                                if (item.title === "Settings") {
+                                                    e.preventDefault()
+                                                    setSettingsOpen(true)
+                                                }
+                                            }}
+                                            className="w-full"
+                                        >
+                                            <a href={item.url}>
+                                                <item.icon />
+                                                <span>{item.title}</span>
+                                            </a>
+                                        </SidebarMenuButton>
+                                    </Focusable>
                                 </SidebarMenuItem>
                             ))}
                         </SidebarMenu>
