@@ -76,11 +76,6 @@ export function Focusable({
                 focused && focusedClassName,
                 "transition-all duration-200"
             )}
-            style={{
-                // DEBUG: Inline style for absolute visibility
-                backgroundColor: focused ? 'yellow' : undefined,
-                border: focused ? '4px solid red' : undefined
-            }}
         >
             {children}
         </div>
