@@ -4,6 +4,7 @@ import { init } from '@noriginmedia/norigin-spatial-navigation'
 import MainLayout from '@/components/layout/MainLayout'
 import { VideoPlayer } from '@/components/features/player/VideoPlayer'
 import { ThemeProvider } from "@/components/theme-provider"
+import { AppSettingsProvider } from "@/components/app-settings-provider"
 import './App.css'
 
 const pb = new PocketBase('http://127.0.0.1:8090');
@@ -35,9 +36,11 @@ function App() {
     // The navigation system needs the DOM to be ready before initialization.
     if (!isInitCalled) {
       try {
+        // NOTE: visualDebug mode seems to break keyboard navigation
+        // Keep debug and visualDebug disabled until we can investigate further
         init({
-          debug: false,       // Set to true to see navigation decisions in console
-          visualDebug: false  // Set to true to see focus outlines on screen
+          debug: false,
+          visualDebug: false
         });
         console.log("Spatial Navigation Initialized");
         isInitCalled = true;
@@ -57,17 +60,19 @@ function App() {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <MainLayout>
-        <div className="w-full h-full relative">
-          {/* Video Player - Takes up the full content area */}
-          <VideoPlayer />
+      <AppSettingsProvider>
+        <MainLayout>
+          <div className="w-full h-full relative">
+            {/* Video Player - Takes up the full content area */}
+            <VideoPlayer />
 
-          {/* Backend Status Indicator - Bottom right corner */}
-          <div className="absolute bottom-4 right-4 z-10 bg-black/50 p-2 rounded text-white text-xs">
-            {pbStatus}
+            {/* Backend Status Indicator - Bottom right corner */}
+            <div className="absolute bottom-4 right-4 z-10 bg-black/50 p-2 rounded text-white text-xs">
+              {pbStatus}
+            </div>
           </div>
-        </div>
-      </MainLayout>
+        </MainLayout>
+      </AppSettingsProvider>
     </ThemeProvider>
   )
 }

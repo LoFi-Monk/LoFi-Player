@@ -39,7 +39,7 @@ export function Focusable({
     children,
     onEnter,
     className,
-    focusedClassName = 'ring-2 ring-primary ring-offset-2',
+    focusedClassName = 'bg-yellow-400 ring-4 ring-yellow-400',
     autoFocus = false,
     focusKey
 }: FocusableProps) {
@@ -53,14 +53,20 @@ export function Focusable({
         focusKey
     });
 
+    // DEBUG: Log when focused state changes
+    useEffect(() => {
+        console.log('Focusable focused state changed:', focused, 'focusKey:', focusKey);
+    }, [focused, focusKey]);
+
     // Handle autoFocus on mount
     // WHY: Some elements need to be focused immediately when the UI loads
     // (e.g., the "Home" menu item should be focused by default)
     useEffect(() => {
         if (autoFocus) {
+            console.log('Auto-focusing element:', focusKey);
             focusSelf();
         }
-    }, [autoFocus, focusSelf]);
+    }, [autoFocus, focusSelf, focusKey]);
 
     return (
         <div
@@ -70,6 +76,11 @@ export function Focusable({
                 focused && focusedClassName,
                 "transition-all duration-200"
             )}
+            style={{
+                // DEBUG: Inline style for absolute visibility
+                backgroundColor: focused ? 'yellow' : undefined,
+                border: focused ? '4px solid red' : undefined
+            }}
         >
             {children}
         </div>
