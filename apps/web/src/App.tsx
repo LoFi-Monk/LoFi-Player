@@ -1,35 +1,52 @@
 import { useState, useEffect } from 'react'
 import PocketBase from 'pocketbase'
 import { init } from '@noriginmedia/norigin-spatial-navigation'
-import { Focusable } from "@/components/features/input/Focusable"
+import MainLayout from '@/components/layout/MainLayout'
+import { VideoPlayer } from '@/components/features/player/VideoPlayer'
+import { ThemeProvider } from "@/components/theme-provider"
 import './App.css'
 
 const pb = new PocketBase('http://127.0.0.1:8090');
 
-// Input System V2: Verification with CORRECT package
-// Using @noriginmedia/norigin-spatial-navigation (React 18 compatible)
+/**
+ * App Component
+ * 
+ * WHY: Root component that sets up the application.
+ * HOW: Initializes spatial navigation in useEffect (after mount),
+ *      wraps everything in ThemeProvider for dark mode support,
+ *      and renders MainLayout which contains the sidebar and content.
+ * 
+ * NOTE: Spatial Navigation `init()` MUST be called in useEffect, not at module scope.
+ * This is because the React 18 concurrent renderer can cause issues with global state
+ * if initialized before the component tree is ready.
+ */
 
 // Track if init has been called to prevent double-invocation
+// WHY: StrictMode in dev mode causes useEffect to run twice.
+// Without this guard, spatial nav would be initialized twice, causing errors.
 let isInitCalled = false;
 
 function App() {
   const [pbStatus, setPbStatus] = useState('Checking Backend...')
 
   useEffect(() => {
-    // Prevent double init (StrictMode in dev causes double effects)
+    // Initialize Spatial Navigation AFTER component mounts
+    // WHY: Calling init() at module scope causes blank page in React 18.
+    // The navigation system needs the DOM to be ready before initialization.
     if (!isInitCalled) {
       try {
         init({
-          debug: true,
-          visualDebug: true
+          debug: false,       // Set to true to see navigation decisions in console
+          visualDebug: false  // Set to true to see focus outlines on screen
         });
-        console.log("Spatial Nav Initialized Successfully (CORRECT PACKAGE)");
+        console.log("Spatial Navigation Initialized");
         isInitCalled = true;
       } catch (e) {
-        console.error("Spatial Nav Init Failed", e);
+        console.error("Spatial Navigation Init Failed", e);
       }
     }
 
+    // Check backend connectivity
     pb.health.check().then(() => {
       setPbStatus('Connected to Mediaserver')
     }).catch((err) => {
@@ -39,24 +56,19 @@ function App() {
   }, [])
 
   return (
-    <div className="w-full h-full relative p-10 bg-black text-white">
-      <h1>Verification: Correct Package</h1>
-      <p>Using @noriginmedia/norigin-spatial-navigation</p>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <MainLayout>
+        <div className="w-full h-full relative">
+          {/* Video Player - Takes up the full content area */}
+          <VideoPlayer />
 
-      <div className="flex gap-4 mt-8">
-        <Focusable className="p-4 bg-gray-800 rounded" focusedClassName="bg-blue-600 ring-2 ring-white">
-          <button>Focusable Item 1</button>
-        </Focusable>
-
-        <Focusable className="p-4 bg-gray-800 rounded" focusedClassName="bg-blue-600 ring-2 ring-white">
-          <button>Focusable Item 2</button>
-        </Focusable>
-      </div>
-
-      <div className="absolute bottom-4 right-4 z-10 bg-black/50 p-2 rounded text-white text-xs">
-        {pbStatus}
-      </div>
-    </div>
+          {/* Backend Status Indicator - Bottom right corner */}
+          <div className="absolute bottom-4 right-4 z-10 bg-black/50 p-2 rounded text-white text-xs">
+            {pbStatus}
+          </div>
+        </div>
+      </MainLayout>
+    </ThemeProvider>
   )
 }
 
