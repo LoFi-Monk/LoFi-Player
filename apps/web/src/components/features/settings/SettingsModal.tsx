@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Settings, Keyboard, Terminal, Server, Moon, Sun, Laptop } from "lucide-react"
 import { useTheme } from "@/components/theme-provider"
+import { Focusable } from "@/components/features/input/Focusable"
 
 interface SettingsModalProps {
     open: boolean
@@ -34,8 +35,6 @@ export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
                 </DialogHeader>
 
                 <Tabs defaultValue="general" orientation="vertical" className="flex-1 flex overflow-hidden">
-                    import {Focusable} from "@/components/features/input/Focusable"
-                    // ...
                     {/* Sidebar / Tabs List */}
                     <div className="w-64 border-r bg-muted/30 p-4">
                         <TabsList className="flex flex-col h-auto w-full bg-transparent gap-1 p-0">

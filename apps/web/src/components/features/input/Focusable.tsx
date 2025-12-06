@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { useFocusable, FocusableComponentLayout } from '@noriginmedia/react-spatial-navigation';
+import React from 'react';
 import { cn } from '@/lib/utils';
-import { useInputMode } from './input-provider';
+// import { useFocusable, FocusableComponentLayout } from '@noriginmedia/react-spatial-navigation';
+// import { useInputMode } from './input-provider';
 
 interface FocusableProps {
     children: React.ReactNode;
-    onFocus?: (layout: FocusableComponentLayout) => void;
+    onFocus?: (layout: any) => void;
     onEnter?: () => void;
     className?: string; // Base class
     focusedClassName?: string; // Class to add when focused (and in navigation mode)
@@ -15,43 +15,11 @@ interface FocusableProps {
 
 export function Focusable({
     children,
-    onFocus,
-    onEnter,
     className,
-    focusedClassName = 'ring-2 ring-primary ring-offset-2',
-    focusKey,
-    autoFocus
 }: FocusableProps) {
-    const { ref, focused, focusSelf } = useFocusable({
-        onFocus,
-        onEnter,
-        focusKey,
-        trackChildren: true,
-        autoFocus
-    });
-
-    const { mode } = useInputMode();
-
-    // Handle manual autoFocus if property is set
-    useEffect(() => {
-        if (autoFocus) {
-            focusSelf();
-        }
-    }, [autoFocus, focusSelf]);
-
-    // Only show visual focus indication if we are in 'navigation' mode (Keyboard/Gamepad)
-    // AND the item is actually focused.
-    const isVisuallyFocused = focused && mode === 'navigation';
-
+    // Pass-through implementation for Safe Mode rollback
     return (
-        <div
-            ref={ref}
-            className={cn(
-                className,
-                isVisuallyFocused && focusedClassName,
-                "transition-all duration-200"
-            )}
-        >
+        <div className={cn(className, "transition-all duration-200")}>
             {children}
         </div>
     );
