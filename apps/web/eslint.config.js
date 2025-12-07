@@ -5,11 +5,8 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
-import jsdoc from 'eslint-plugin-jsdoc'
-
 export default tseslint.config([
   globalIgnores(['dist']),
-  jsdoc.configs['flat/recommended'],
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -19,7 +16,6 @@ export default tseslint.config([
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
-      jsdoc,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -27,7 +23,6 @@ export default tseslint.config([
         'warn',
         { allowConstantExport: true },
       ],
-      'jsdoc/require-description': 'warn',
     },
     languageOptions: {
       ecmaVersion: 2020,
