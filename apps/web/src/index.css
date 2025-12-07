@@ -9,7 +9,9 @@
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%}
+    --sidebar-ring: 217.2 91.2% 59.8%
+  }
+
   .dark {
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -18,14 +20,26 @@
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%}
+    --sidebar-ring: 217.2 91.2% 59.8%
+  }
 }
 
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Spatial Navigation Focus State
+   * WHY: We use a data attribute selector [data-focused="true"] instead of :focus
+   * because the spatial navigation library manages focus state manually via React state.
+   * This ensures the style is applied reliably regardless of actual DOM focus or specificity wars.
+   */
+  [data-focused="true"] {
+    @apply ring-2 ring-primary bg-sidebar-accent text-sidebar-accent-foreground shadow-md z-10;
+    transition: all 0.2s ease-out;
   }
 }

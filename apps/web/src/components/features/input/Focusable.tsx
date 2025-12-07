@@ -61,16 +61,32 @@ export function Focusable({
     // Handle autoFocus on mount
     // WHY: Some elements need to be focused immediately when the UI loads
     // (e.g., the "Home" menu item should be focused by default)
+    // Handle autoFocus on mount
+    // WHY: Some elements need to be focused immediately when the UI loads
+    // (e.g., the "Home" menu item should be focused by default)
     useEffect(() => {
         if (autoFocus) {
-            console.log('Auto-focusing element:', focusKey);
+            // console.log('Auto-focusing element:', focusKey);
             focusSelf();
+
+            // Retry focus a few times to handle library initialization timing
+            // This ensures focus is caught even if the engine initializes slightly later
+            const timers = [
+                setTimeout(() => focusSelf(), 100),
+                setTimeout(() => focusSelf(), 300),
+                setTimeout(() => focusSelf(), 500)
+            ];
+
+            return () => {
+                timers.forEach(t => clearTimeout(t));
+            };
         }
     }, [autoFocus, focusSelf, focusKey]);
 
     return (
         <div
             ref={ref}
+            data-focused={focused}
             className={cn(
                 className,
                 focused && focusedClassName,

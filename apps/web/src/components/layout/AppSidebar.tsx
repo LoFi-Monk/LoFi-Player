@@ -113,8 +113,8 @@ export function AppSidebar() {
                                                         window.location.href = item.url
                                                     }
                                                 }}
-                                                className="rounded-md outline-none"
-                                                focusedClassName="ring-2 ring-primary bg-sidebar-accent text-sidebar-accent-foreground z-10"
+                                                className="rounded-md outline-none transition-all duration-200"
+                                                focusedClassName=""
                                             >
                                                 <SidebarMenuButton
                                                     asChild
