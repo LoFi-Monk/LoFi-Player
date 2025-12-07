@@ -25,7 +25,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^2.2.1",
-    "vaul": "^1.1.2"
+    "vaul": "^1.1.2",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@types/node": "^20.11.24",
