@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
  * NOTE: We migrated from the deprecated @noriginmedia/react-spatial-navigation
  * to @noriginmedia/norigin-spatial-navigation which is React 18 compatible.
  */
-interface FocusableProps {
+interface FocusableProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
     /** Callback when 'Enter' is pressed on this element */
     onEnter?: () => void;
@@ -41,7 +41,8 @@ export function Focusable({
     className,
     focusedClassName = 'bg-yellow-400 ring-4 ring-yellow-400',
     autoFocus = false,
-    focusKey
+    focusKey,
+    ...props
 }: FocusableProps) {
 
     // Hook into spatial navigation system
@@ -77,6 +78,7 @@ export function Focusable({
                 focused && focusedClassName,
                 "transition-all duration-200"
             )}
+            {...props}
         >
             {children}
         </div>

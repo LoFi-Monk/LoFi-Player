@@ -81,12 +81,13 @@ const SettingsSidebarItem = ({ section }: { section: SettingsSectionConfig }) =>
             onEnter={() => setActiveSection(section.id)}
             focusKey={`SETTINGS-SIDEBAR-${section.id}`}
             className={cn(
-                "flex items-center w-full px-4 py-3 mb-1 text-sm font-medium rounded-md transition-colors",
+                "flex items-center w-full px-4 py-3 mb-1 text-sm font-medium rounded-md transition-colors cursor-pointer",
                 isActive
                     ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:bg-muted"
             )}
             focusedClassName="ring-2 ring-primary bg-primary/20 text-primary z-10"
+            onClick={() => setActiveSection(section.id)}
         >
             <section.icon className="w-4 h-4 mr-3" />
             <span>{section.label}</span>
