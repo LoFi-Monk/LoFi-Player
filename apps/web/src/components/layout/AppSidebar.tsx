@@ -7,7 +7,6 @@ import {
     Waves,
     User,
     Settings,
-    Puzzle,
 } from "lucide-react"
 import { useFocusable, FocusContext } from '@noriginmedia/norigin-spatial-navigation'
 import { Focusable } from "@/components/features/input/Focusable"
@@ -66,11 +65,7 @@ const items = [
         url: "#",
         icon: User,
     },
-    {
-        title: "Plugins",
-        url: "#",
-        icon: Puzzle, // Using Puzzle icon imported from lucide-react
-    },
+
     {
         title: "Settings",
         url: "#",
@@ -101,7 +96,10 @@ export function AppSidebar() {
     });
 
     // REGRESSION FIX: Explicitly set focus to container on mount
-    // WHY: focusSelf() on the container delegates to the first child (Home) via trackChildren
+    // FIX: Regression where initial focus was lost on reload
+    // WHY: The focus engine needs a "kickstart" when the component mounts.
+    // By focusing the container, the engine automatically delegates to the first child (Home)
+    // because `trackChildren: true` is set.
     React.useEffect(() => {
         focusSelf();
     }, [focusSelf]);
@@ -128,10 +126,9 @@ export function AppSidebar() {
                                                 focusKey={item.title}
                                                 autoFocus={item.title === 'Home'}
                                                 onEnter={() => {
+                                                    // Map specific items to modal sections
                                                     if (item.title === "Settings") {
                                                         openSettings("general");
-                                                    } else if (item.title === "Plugins") {
-                                                        openSettings("plugins");
                                                     } else {
                                                         window.location.href = item.url
                                                     }
@@ -141,13 +138,11 @@ export function AppSidebar() {
                                             >
                                                 <SidebarMenuButton
                                                     asChild
+                                                    // Custom handler for special actions
                                                     onClick={(e) => {
                                                         if (item.title === "Settings") {
                                                             e.preventDefault()
                                                             openSettings("general");
-                                                        } else if (item.title === "Plugins") {
-                                                            e.preventDefault()
-                                                            openSettings("plugins");
                                                         }
                                                     }}
                                                     className="w-full"
@@ -169,7 +164,17 @@ export function AppSidebar() {
                 {/* Settings Modal - Controlled by state */}
                 <SettingsModal
                     open={settingsState.open}
-                    onOpenChange={(open: boolean) => setSettingsState(prev => ({ ...prev, open }))}
+                    onOpenChange={(open: boolean) => {
+                        setSettingsState(prev => ({ ...prev, open }));
+                        // RESTORE FOCUS FIX: When closing, force focus back to Sidebar
+                        // saveLastFocusedChild: true on the container helps return to "Settings" button
+                        if (!open) {
+                            // Small delay to ensure Modal unmounts and control returns to this layer
+                            setTimeout(() => {
+                                focusSelf();
+                            }, 50);
+                        }
+                    }}
                     initialSection={settingsState.section}
                 />
             </Sidebar>

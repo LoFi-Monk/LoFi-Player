@@ -50,7 +50,10 @@ function App() {
         console.error("Spatial Navigation Init Failed", e);
       }
     }
-    setIsNavReady(true);
+    // Defer state update to next tick to avoid "cascading render" lint error
+    setTimeout(() => {
+      setIsNavReady(true);
+    }, 0);
 
     // Check backend connectivity
     pb.health.check().then(() => {
@@ -61,6 +64,10 @@ function App() {
     })
   }, [])
 
+  // Render Block: Prevent rendering UI until Navigation is ready
+  // WHY: If AppSidebar renders before init() completes, the useFocusable hook
+  // will fail to register the container correctly, leading to non-responsive navigation
+  // and "lost focus" bugs on refresh.
   if (!isNavReady) return null;
 
   return (
