@@ -7,6 +7,7 @@ import {
     Waves,
     User,
     Settings,
+    Puzzle,
 } from "lucide-react"
 import { useFocusable, FocusContext } from '@noriginmedia/norigin-spatial-navigation'
 import { Focusable } from "@/components/features/input/Focusable"
@@ -66,6 +67,11 @@ const items = [
         icon: User,
     },
     {
+        title: "Plugins",
+        url: "#",
+        icon: Puzzle, // Using Puzzle icon imported from lucide-react
+    },
+    {
         title: "Settings",
         url: "#",
         icon: Settings,
@@ -73,7 +79,16 @@ const items = [
 ]
 
 export function AppSidebar() {
-    const [settingsOpen, setSettingsOpen] = React.useState(false)
+    // State for Settings Modal (open status + specific section to open to)
+    const [settingsState, setSettingsState] = React.useState<{
+        open: boolean;
+        section?: "general" | "server" | "customization" | "plugins" | "about";
+    }>({ open: false });
+
+    // Helper to open settings to a specific section
+    const openSettings = (section: "general" | "server" | "customization" | "plugins" | "about" = "general") => {
+        setSettingsState({ open: true, section });
+    };
 
     // Create parent focusable container for the sidebar
     // WHY: The library requires a parent FocusContext to manage child focus
@@ -108,7 +123,9 @@ export function AppSidebar() {
                                                 autoFocus={item.title === 'Home'}
                                                 onEnter={() => {
                                                     if (item.title === "Settings") {
-                                                        setSettingsOpen(true)
+                                                        openSettings("general");
+                                                    } else if (item.title === "Plugins") {
+                                                        openSettings("plugins");
                                                     } else {
                                                         window.location.href = item.url
                                                     }
@@ -121,7 +138,10 @@ export function AppSidebar() {
                                                     onClick={(e) => {
                                                         if (item.title === "Settings") {
                                                             e.preventDefault()
-                                                            setSettingsOpen(true)
+                                                            openSettings("general");
+                                                        } else if (item.title === "Plugins") {
+                                                            e.preventDefault()
+                                                            openSettings("plugins");
                                                         }
                                                     }}
                                                     className="w-full"
@@ -141,7 +161,11 @@ export function AppSidebar() {
                 </SidebarContent>
 
                 {/* Settings Modal - Controlled by state */}
-                <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
+                <SettingsModal
+                    open={settingsState.open}
+                    onOpenChange={(open: boolean) => setSettingsState(prev => ({ ...prev, open }))}
+                    initialSection={settingsState.section}
+                />
             </Sidebar>
         </div>
     )

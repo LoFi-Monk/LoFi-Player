@@ -33,11 +33,7 @@
     @apply bg-background text-foreground;
   }
 
-  /* Spatial Navigation Focus State
-   * WHY: We use a data attribute selector [data-focused="true"] instead of :focus
-   * because the spatial navigation library manages focus state manually via React state.
-   * This ensures the style is applied reliably regardless of actual DOM focus or specificity wars.
-   */
+  /* Spatial Navigation Focus State */
   [data-focused="true"] {
     @apply ring-2 ring-primary bg-sidebar-accent text-sidebar-accent-foreground shadow-md z-10;
     transition: all 0.2s ease-out;

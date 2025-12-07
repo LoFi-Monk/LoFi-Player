@@ -1,193 +1,186 @@
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Settings, Keyboard, Terminal, Server, Moon, Sun, Laptop } from "lucide-react"
-import { useTheme } from "@/components/theme-provider"
-import { useFocusable, FocusContext } from '@noriginmedia/norigin-spatial-navigation'
-import { Focusable } from "@/components/features/input/Focusable"
-import { useEffect } from 'react'
+import * as React from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { useFocusable, FocusContext } from '@noriginmedia/norigin-spatial-navigation';
+import { cn } from "@/lib/utils";
+import { Settings, Server, Paintbrush, Puzzle, Info } from "lucide-react";
+import { useSettingsStore } from "@/stores/settings-store";
+import type { SettingsSectionId } from "@/stores/settings-store";
+import { Focusable } from "@/components/features/input/Focusable"; // Import our custom wrapper
+
+// --- Types & Config ---
+
+interface SettingsSectionConfig {
+    id: SettingsSectionId;
+    label: string;
+    icon: React.ElementType;
+    component: React.FC;
+}
+
+// Placeholder Components for Sections
+const GeneralSettings = () => (
+    <div className="space-y-4">
+        <h2 className="text-2xl font-bold mb-4">General Settings</h2>
+        <div className="bg-card/50 p-4 rounded-lg border border-border/50">
+            <p className="text-muted-foreground">App preferences and locale settings.</p>
+        </div>
+    </div>
+);
+
+const ServerSettings = () => (
+    <div className="space-y-4">
+        <h2 className="text-2xl font-bold mb-4">Server Status</h2>
+        <div className="bg-card/50 p-4 rounded-lg border border-border/50">
+            <p className="text-muted-foreground">Connection details for PocketBase and Media Server.</p>
+        </div>
+    </div>
+);
+
+const CustomizationSettings = () => (
+    <div className="space-y-4">
+        <h2 className="text-2xl font-bold mb-4">Customization</h2>
+        <div className="bg-card/50 p-4 rounded-lg border border-border/50">
+            <p className="text-muted-foreground">Theme selection and visual tweaks.</p>
+        </div>
+    </div>
+);
+
+const PluginsSettings = () => (
+    <div className="space-y-4">
+        <h2 className="text-2xl font-bold mb-4">Plugins</h2>
+        <div className="bg-card/50 p-4 rounded-lg border border-border/50">
+            <p className="text-muted-foreground">Manage extensions and scrapers.</p>
+        </div>
+    </div>
+);
+
+const AboutSettings = () => (
+    <div className="space-y-4">
+        <h2 className="text-2xl font-bold mb-4">About</h2>
+        <div className="bg-card/50 p-4 rounded-lg border border-border/50">
+            <p className="text-muted-foreground">LoFi Player v0.1.0 (Dev Build)</p>
+        </div>
+    </div>
+);
+
+const SECTIONS: SettingsSectionConfig[] = [
+    { id: 'general', label: 'General', icon: Settings, component: GeneralSettings },
+    { id: 'server', label: 'Server', icon: Server, component: ServerSettings },
+    { id: 'customization', label: 'Customization', icon: Paintbrush, component: CustomizationSettings },
+    { id: 'plugins', label: 'Plugins', icon: Puzzle, component: PluginsSettings },
+    { id: 'about', label: 'About', icon: Info, component: AboutSettings },
+];
+
+// --- Sub-Components ---
+
+const SettingsSidebarItem = ({ section }: { section: SettingsSectionConfig }) => {
+    const { activeSection, setActiveSection } = useSettingsStore();
+    const isActive = activeSection === section.id;
+
+    return (
+        <Focusable
+            onEnter={() => setActiveSection(section.id)}
+            focusKey={`SETTINGS-SIDEBAR-${section.id}`}
+            className={cn(
+                "flex items-center w-full px-4 py-3 mb-1 text-sm font-medium rounded-md transition-colors",
+                isActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-muted"
+            )}
+            focusedClassName="ring-2 ring-primary bg-primary/20 text-primary z-10"
+        >
+            <section.icon className="w-4 h-4 mr-3" />
+            <span>{section.label}</span>
+        </Focusable>
+    );
+};
 
 interface SettingsModalProps {
-    open: boolean
-    onOpenChange: (open: boolean) => void
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    initialSection?: SettingsSectionId;
 }
 
 /**
- * Settings Modal Component with Spatial Navigation
+ * SettingsModalContent (Inner Logic)
  * 
- * This modal implements proper focus management using norigin-spatial-navigation:
- * 
- * 1. Has its own FocusContext.Provider to isolate focus from main sidebar
- * 2. Uses isFocusBoundary to trap navigation inside the modal
- * 3. Uses autoRestoreFocus to return focus to Settings button when closed
- * 4. Uses focusSelf() in useEffect to move focus when modal opens
- * 
- * Reference: https://devportal.noriginmedia.com/docs/Norigin-Spatial-Navigation/
+ * separated to ensure useFocusable has a valid DOM node when mounted
  */
-export function SettingsModal({ open, onOpenChange }: SettingsModalProps) {
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden gap-0">
-                <SettingsModalContent />
-            </DialogContent>
-        </Dialog>
-    )
-}
+function SettingsModalContent({ open, onOpenChange, initialSection }: SettingsModalProps) {
+    const { activeSection, setActiveSection, resetSettingsNavigation } = useSettingsStore();
 
-function SettingsModalContent() {
-    const { setTheme, theme } = useTheme()
-
-    /**
-     * Parent focusable container for the Settings modal
-     * 
-     * WHY: Modal needs its own separate FocusContext to avoid interfering
-     * with the main sidebar focus tracking when opened/closed.
-     * 
-     * CONFIG:
-     * - focusable: false       -> Container itself isn't focusable, just provides context
-     * - isFocusBoundary: true  -> Traps navigation inside modal (arrow keys can't escape)
-     * - autoRestoreFocus: true -> Returns focus to Settings button when modal closes
-     * - saveLastFocusedChild   -> Remembers which tab was focused if reopening
-     * - trackChildren: true    -> Enables hasFocusedChild tracking
-     */
-    const { ref: modalContainerRef, focusKey: modalFocusKey, focusSelf } = useFocusable({
-        focusable: false,
-        saveLastFocusedChild: true,
+    // Parent Focus Context for the entire modal
+    // isFocusBoundary: traps focus inside
+    // autoRestoreFocus: returns focus to Sidebar Button on close
+    const { ref, focusSelf, focusKey: modalFocusKey } = useFocusable({
+        isFocusBoundary: true,
+        focusKey: 'SETTINGS-MODAL',
         trackChildren: true,
         autoRestoreFocus: true,
-        isFocusBoundary: true,
-        focusKey: 'SETTINGS-MODAL-CONTAINER'
+        focusable: true // The container itself can receive focus initially
     });
 
-    /**
-     * Move focus into modal when it opens/mounts
-     */
-    useEffect(() => {
-        // Small delay to ensure DOM is ready
-        const timeoutId = setTimeout(() => {
+    // Handle Initial Focus & Section
+    React.useEffect(() => {
+        if (open) {
+            console.log("Settings Modal Opened");
+            // 1. Set initial section if provided, otherwise 'general' (handled by store default)
+            if (initialSection) setActiveSection(initialSection);
+
+            // 2. Capture Focus
+            // We focus the sidebar container first, or specific item logically
             focusSelf();
-        }, 100);
-        return () => clearTimeout(timeoutId);
-    }, [focusSelf]);
+        } else {
+            // Reset to 'general' on close so it feels fresh next time
+            resetSettingsNavigation();
+        }
+    }, [open, focusSelf, initialSection, setActiveSection, resetSettingsNavigation]);
+
+    const ActiveComponent = SECTIONS.find(s => s.id === activeSection)?.component || GeneralSettings;
 
     return (
-        <>
-            <DialogHeader className="px-6 py-4 border-b">
-                <DialogTitle>Settings</DialogTitle>
-                <DialogDescription>
-                    Manage your application preferences and configuration.
-                </DialogDescription>
-            </DialogHeader>
+        <FocusContext.Provider value={modalFocusKey}>
+            <div ref={ref} className="flex h-full overflow-hidden" data-testid="settings-modal-content">
 
-            {/* 
-                Modal focus container with FocusContext.Provider
-            */}
-            <div ref={modalContainerRef} className="flex-1 flex overflow-hidden">
-                <FocusContext.Provider value={modalFocusKey}>
-                    <Tabs defaultValue="general" orientation="vertical" className="flex-1 flex overflow-hidden">
-                        {/* Sidebar / Tabs List */}
-                        <div className="w-64 border-r bg-muted/30 p-4">
-                            <TabsList className="flex flex-col h-auto w-full bg-transparent gap-1 p-0">
-                                {["general", "keybindings", "developer", "servers"].map((tab, index) => (
-                                    <Focusable
-                                        key={tab}
-                                        focusKey={`settings-tab-${tab}`}
-                                        autoFocus={index === 0}  // First tab gets autoFocus
-                                        className="rounded-sm"
-                                        focusedClassName="ring-2 ring-primary z-10"
-                                    >
-                                        <TabsTrigger
-                                            value={tab}
-                                            className="w-full justify-start gap-2 px-3 data-[state=active]:bg-background data-[state=active]:shadow-sm capitalize"
-                                        >
-                                            {tab === 'general' && <Settings className="h-4 w-4" />}
-                                            {tab === 'keybindings' && <Keyboard className="h-4 w-4" />}
-                                            {tab === 'developer' && <Terminal className="h-4 w-4" />}
-                                            {tab === 'servers' && <Server className="h-4 w-4" />}
-                                            {tab}
-                                        </TabsTrigger>
-                                    </Focusable>
-                                ))}
-                            </TabsList>
-                        </div>
+                {/* LEFT COLUMN: Sidebar Navigation */}
+                <div className="w-64 border-r border-border bg-card/30 flex flex-col p-4 bg-muted/10">
+                    <h3 className="text-lg font-semibold mb-4 px-2 tracking-tight">Settings</h3>
+                    <div className="flex-1 space-y-1">
+                        {SECTIONS.map((section) => (
+                            <SettingsSidebarItem key={section.id} section={section} />
+                        ))}
+                    </div>
+                </div>
 
-                        {/* Content Area */}
-                        <div className="flex-1 overflow-auto p-6 bg-background">
-                            <TabsContent value="general" className="mt-0 h-full">
-                                <div className="space-y-6">
-                                    <div>
-                                        <h3 className="text-lg font-medium">Appearance</h3>
-                                        <p className="text-sm text-muted-foreground mb-4">
-                                            Customize the look and feel of the application.
-                                        </p>
-                                        <div className="flex items-center gap-2">
-                                            {[
-                                                { mode: 'light', icon: Sun, label: 'Light' },
-                                                { mode: 'dark', icon: Moon, label: 'Dark' },
-                                                { mode: 'system', icon: Laptop, label: 'System' }
-                                            ].map(({ mode, icon: Icon, label }) => (
-                                                <Focusable
-                                                    key={mode}
-                                                    focusKey={`theme-${mode}`}
-                                                    className="rounded-md"
-                                                    focusedClassName="ring-2 ring-primary"
-                                                    onEnter={() => setTheme(mode as any)}
-                                                >
-                                                    <Button
-                                                        variant={theme === mode ? "default" : "outline"}
-                                                        onClick={() => setTheme(mode as any)}
-                                                        className="w-32 justify-start gap-2"
-                                                    >
-                                                        <Icon className="h-4 w-4" />
-                                                        {label}
-                                                    </Button>
-                                                </Focusable>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="border-t pt-4">
-                                        <h3 className="text-lg font-medium">Coming Soon</h3>
-                                        <p className="text-sm text-muted-foreground">More general settings will appear here.</p>
-                                    </div>
-                                </div>
-                            </TabsContent>
+                {/* RIGHT COLUMN: Content Area */}
+                {/* We wrap this in a FocusContext too provided by useFocusable? 
+                    Actually, we just need it to be a valid focus zone.
+                */}
+                <div className="flex-1 overflow-y-auto p-8 bg-background">
+                    <div className="max-w-2xl mx-auto animate-in fade-in slide-in-from-right-4 duration-300">
+                        <ActiveComponent />
+                    </div>
+                </div>
 
-                            <TabsContent value="keybindings" className="mt-0 h-full">
-                                <div className="space-y-4">
-                                    <h3 className="text-lg font-medium">Keybindings</h3>
-                                    <p className="text-sm text-muted-foreground">Manage keyboard shortcuts and gamepad mapping.</p>
-                                    {/* TODO: Add Keybindings list */}
-                                </div>
-                            </TabsContent>
-
-                            <TabsContent value="developer" className="mt-0 h-full">
-                                <div className="space-y-4">
-                                    <h3 className="text-lg font-medium">Developer Settings</h3>
-                                    <p className="text-sm text-muted-foreground">Debug tools and advanced configuration.</p>
-                                </div>
-                            </TabsContent>
-
-                            <TabsContent value="servers" className="mt-0 h-full">
-                                <div className="space-y-4">
-                                    <h3 className="text-lg font-medium">Servers Status</h3>
-                                    <p className="text-sm text-muted-foreground">Monitor connected backend services.</p>
-                                </div>
-                            </TabsContent>
-                        </div>
-                    </Tabs>
-                </FocusContext.Provider>
             </div>
-        </>
-    )
+        </FocusContext.Provider>
+    );
+}
+
+/**
+ * SettingsModal (Outer Dialog)
+ */
+export function SettingsModal({ open, onOpenChange, initialSection }: SettingsModalProps) {
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-[900px] h-[600px] p-0 overflow-hidden border-border bg-background shadow-2xl">
+                {open && (
+                    <SettingsModalContent
+                        open={open}
+                        onOpenChange={onOpenChange}
+                        initialSection={initialSection}
+                    />
+                )}
+            </DialogContent>
+        </Dialog>
+    );
 }
