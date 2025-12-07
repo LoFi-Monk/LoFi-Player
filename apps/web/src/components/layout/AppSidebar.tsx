@@ -93,12 +93,18 @@ export function AppSidebar() {
     // Create parent focusable container for the sidebar
     // WHY: The library requires a parent FocusContext to manage child focus
     // NOTE: The parent itself is NOT focusable, it's just a container
-    const { ref: containerRef, focusKey: sidebarFocusKey } = useFocusable({
-        focusable: false,  // Parent container is not itself focusable
+    const { ref: containerRef, focusKey: sidebarFocusKey, focusSelf } = useFocusable({
+        focusable: true,  // Must be true for focusSelf to work, but trackChildren delegates it
         saveLastFocusedChild: true,
         trackChildren: true,
         focusKey: 'SIDEBAR-CONTAINER'
     });
+
+    // REGRESSION FIX: Explicitly set focus to container on mount
+    // WHY: focusSelf() on the container delegates to the first child (Home) via trackChildren
+    React.useEffect(() => {
+        focusSelf();
+    }, [focusSelf]);
 
     return (
         <div ref={containerRef}>

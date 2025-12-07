@@ -30,6 +30,8 @@ let isInitCalled = false;
 function App() {
   const [pbStatus, setPbStatus] = useState('Checking Backend...')
 
+  const [isNavReady, setIsNavReady] = useState(false);
+
   useEffect(() => {
     // Initialize Spatial Navigation AFTER component mounts
     // WHY: Calling init() at module scope causes blank page in React 18.
@@ -48,6 +50,7 @@ function App() {
         console.error("Spatial Navigation Init Failed", e);
       }
     }
+    setIsNavReady(true);
 
     // Check backend connectivity
     pb.health.check().then(() => {
@@ -57,6 +60,8 @@ function App() {
       setPbStatus('Backend Disconnected')
     })
   }, [])
+
+  if (!isNavReady) return null;
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
