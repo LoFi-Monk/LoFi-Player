@@ -9,19 +9,20 @@ import jsdoc from 'eslint-plugin-jsdoc'
 
 export default tseslint.config([
   globalIgnores(['dist']),
+  jsdoc.configs['flat/recommended'],
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
-      reactHooks.configs.recommended,
-      jsdoc.configs['flat/recommended'],
     ],
     plugins: {
+      'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       jsdoc,
     },
     rules: {
+      ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
