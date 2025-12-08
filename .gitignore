@@ -25,3 +25,16 @@ Thumbs.db
 
 # Turbo
 .turbo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Documentation (Local only)
+Norigin Spatial Navigation*.md
+
+# Testing
+coverage/
+*.tsbuildinfo
