@@ -106,7 +106,7 @@ interface SettingsModalProps {
  * 
  * separated to ensure useFocusable has a valid DOM node when mounted
  */
-function SettingsModalContent({ open, onOpenChange, initialSection }: SettingsModalProps) {
+function SettingsModalContent({ open, initialSection }: SettingsModalProps) {
     const { activeSection, setActiveSection, resetSettingsNavigation } = useSettingsStore();
 
     // Parent Focus Context for the entire modal
@@ -140,10 +140,10 @@ function SettingsModalContent({ open, onOpenChange, initialSection }: SettingsMo
 
     return (
         <FocusContext.Provider value={modalFocusKey}>
-            <div ref={ref} className="flex h-full overflow-hidden" data-testid="settings-modal-content">
+            <div ref={ref} className="flex flex-col sm:flex-row h-full w-full overflow-hidden" data-testid="settings-modal-content">
 
                 {/* LEFT COLUMN: Sidebar Navigation */}
-                <div className="w-64 border-r border-border bg-card/30 flex flex-col p-4 bg-muted/10">
+                <div className="w-full sm:w-64 border-b sm:border-b-0 sm:border-r border-border bg-card/30 flex flex-col p-4 bg-muted/10 shrink-0">
                     <h3 className="text-lg font-semibold mb-4 px-2 tracking-tight">Settings</h3>
                     <div className="flex-1 space-y-1">
                         {SECTIONS.map((section) => (
@@ -173,7 +173,7 @@ function SettingsModalContent({ open, onOpenChange, initialSection }: SettingsMo
 export function SettingsModal({ open, onOpenChange, initialSection }: SettingsModalProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-[900px] h-[600px] p-0 overflow-hidden border-border bg-background shadow-2xl">
+            <DialogContent className="w-[90vw] max-w-5xl h-[80vh] max-h-[800px] p-0 overflow-hidden border-border bg-background shadow-2xl flex flex-col sm:flex-row">
                 {open && (
                     <SettingsModalContent
                         open={open}
