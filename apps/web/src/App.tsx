@@ -5,6 +5,8 @@ import MainLayout from '@/components/layout/MainLayout'
 import { VideoPlayer } from '@/components/features/player/VideoPlayer'
 import { ThemeProvider } from "@/components/theme-provider"
 import { AppSettingsProvider } from "@/components/app-settings-provider"
+import { Toaster } from "@/components/ui/sonner"
+import { notify } from "@/lib/notifications"
 import './App.css'
 
 const pb = new PocketBase('http://127.0.0.1:8090');
@@ -28,8 +30,6 @@ const pb = new PocketBase('http://127.0.0.1:8090');
 let isInitCalled = false;
 
 function App() {
-  const [pbStatus, setPbStatus] = useState('Checking Backend...')
-
   const [isNavReady, setIsNavReady] = useState(false);
 
   useEffect(() => {
@@ -57,10 +57,10 @@ function App() {
 
     // Check backend connectivity
     pb.health.check().then(() => {
-      setPbStatus('Connected to Mediaserver')
+      notify.success('Connected to Mediaserver')
     }).catch((err) => {
       console.error(err)
-      setPbStatus('Backend Disconnected')
+      notify.error('Backend Disconnected')
     })
   }, [])
 
@@ -77,13 +77,9 @@ function App() {
           <div className="w-full h-full relative">
             {/* Video Player - Takes up the full content area */}
             <VideoPlayer />
-
-            {/* Backend Status Indicator - Bottom right corner */}
-            <div className="absolute bottom-4 right-4 z-10 bg-black/50 p-2 rounded text-white text-xs">
-              {pbStatus}
-            </div>
           </div>
         </MainLayout>
+        <Toaster />
       </AppSettingsProvider>
     </ThemeProvider>
   )
