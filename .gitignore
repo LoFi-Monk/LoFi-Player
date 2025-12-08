@@ -23,6 +23,9 @@ Thumbs.db
 .vscode
 .idea
 
+# Agent / Workflows
+.agent/
+
 # Turbo
 .turbo
 
